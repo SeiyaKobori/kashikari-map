@@ -124,13 +124,8 @@
     .reminder-card.danger { border-color: rgba(255,77,109,.42); background: rgba(255,77,109,.10); }
     .reminder-card b { display:block; font-size: 14px; }
     .reminder-card small { color: var(--muted); }
-    .page-links { display: grid; grid-template-columns: repeat(5, minmax(140px, 1fr)); gap: 10px; margin: 0 0 18px; }
-    .page-link { display: block; padding: 13px 14px; border-radius: 16px; text-decoration: none; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.13); }
-    .page-link:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
-    .page-link b { display: block; font-size: 13px; margin-bottom: 3px; }
-    .page-link small { display: block; color: var(--muted); font-size: 11px; line-height: 1.4; }
-    @media (max-width: 1080px) { .screen-board { grid-template-columns: repeat(2, minmax(230px, 1fr)); } .page-links { grid-template-columns: repeat(3, minmax(140px, 1fr)); } }
-    @media (max-width: 860px) { .hero, .flow { grid-template-columns: 1fr; } .grid, .screen-board, .page-links { grid-template-columns: 1fr; } .page { width: min(100% - 18px, 640px); padding-top: 12px; } .phone { min-height: 700px; } .map { height: 330px; } .tag { min-width: 96px; } }
+    @media (max-width: 1080px) { .screen-board { grid-template-columns: repeat(2, minmax(230px, 1fr)); } }
+    @media (max-width: 860px) { .hero, .flow { grid-template-columns: 1fr; } .grid, .screen-board { grid-template-columns: 1fr; } .page { width: min(100% - 18px, 640px); padding-top: 12px; } .phone { min-height: 700px; } .map { height: 330px; } .tag { min-width: 96px; } }
   </style>
 </head>
 <body>
@@ -143,6 +138,7 @@
         <div class="actions">
           <button class="btn">+ 貸し借りを追加</button>
           <button class="btn secondary">期限近いものを見る</button>
+          <a class="btn secondary" href="mock.html" style="text-decoration:none;display:inline-block;">アプリモックを見る</a>
         </div>
       </div>
       <div class="card legend">
@@ -290,13 +286,6 @@
       <div><h2>05. 次に起こすタスク候補</h2><p>現行と同じサイクルで、小さく作って検証する</p></div>
     </div>
     <section class="card next">
-      <div class="page-links" aria-label="各アプリ画面への直接リンク">
-        <a class="page-link" href="#screen-home"><b>ホーム</b><small>マインドマップ</small></a>
-        <a class="page-link" href="#screen-add"><b>追加</b><small>貸し借り登録</small></a>
-        <a class="page-link" href="#screen-list"><b>一覧</b><small>未完了/返却済み</small></a>
-        <a class="page-link" href="#screen-detail"><b>詳細</b><small>状態・履歴</small></a>
-        <a class="page-link" href="#screen-reminders"><b>通知</b><small>リマインダー</small></a>
-      </div>
       <ol class="lead" style="margin:0; max-width:none;">
         <li><strong>ホームマップUIの仕様確定:</strong> ノード配置、線色、期限状態、混雑時の省略ルールを決める。</li>
         <li><strong>追加フォーム仕様:</strong> 入力項目・必須/任意・カテゴリ・リマインダー設定を固める。</li>
