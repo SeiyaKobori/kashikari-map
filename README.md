@@ -29,3 +29,8 @@ URL: http://127.0.0.1:4173/index.html
 
 ローカル原稿: `prototype/index.html`
 公開用トップ: `index.html`
+
+## 提案ページ運用
+
+今後は設計メモだけでなく、ユーザーが直接FBできるように `prototype/index.html` へ実アプリ画面モックを追加して提案する。
+現在の画面モック: ホーム、追加、一覧、詳細、通知。
