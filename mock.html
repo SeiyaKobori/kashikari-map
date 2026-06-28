@@ -12,6 +12,7 @@
     .device-wrap{width:min(100vw,430px);height:100vh;display:grid;place-items:center}
     .phone-shell{position:static;top:auto;width:min(100vw,430px);height:min(100vh,860px);padding:10px;border-radius:34px;background:#050914;border:0;box-shadow:none}
     .phone{width:100%;height:100%;border-radius:30px;box-shadow:var(--shadow)}
+    .appbar-spacer{width:36px;height:36px;flex:none}
     @media(max-width:480px){.phone-shell{width:100vw;height:100vh;padding:0;border-radius:0}.phone{border-radius:0;border:0}.map{height:322px}}
 
   </style>
@@ -22,7 +23,7 @@
 <div class="phone-shell">
   <div class="phone" role="application" aria-label="貸し借りマップ起動体験モック">
     <div class="status"><span>9:41</span><span>貸し借りマップ</span><span>●●●</span></div>
-    <div class="appbar"><button class="icon-btn" id="backBtn" aria-label="戻る" style="visibility:hidden">‹</button><h2 id="title">ホーム</h2><button class="icon-btn" data-screen="reminders" aria-label="通知">🔔</button></div>
+    <div class="appbar"><button class="icon-btn" id="backBtn" aria-label="戻る" style="visibility:hidden">‹</button><h2 id="title">ホーム</h2><div class="appbar-spacer" aria-hidden="true"></div></div>
 
     <div class="content">
       <section class="screen active" data-view="home">
