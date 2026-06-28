@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>貸し借りマップ | HTML構成案</title>
+  <style>
+    :root {
+      --bg: #10151f;
+      --panel: rgba(255,255,255,.08);
+      --panel-strong: rgba(255,255,255,.13);
+      --text: #f6f1e8;
+      --muted: #aeb7c7;
+      --lend: #ff7a45;
+      --borrow: #45c7ff;
+      --warn: #ffd166;
+      --danger: #ff4d6d;
+      --done: #7bd88f;
+      --line: rgba(255,255,255,.20);
+      --shadow: 0 24px 70px rgba(0,0,0,.36);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(69,199,255,.22), transparent 30%),
+        radial-gradient(circle at 82% 18%, rgba(255,122,69,.20), transparent 28%),
+        radial-gradient(circle at 50% 80%, rgba(123,216,143,.12), transparent 36%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .page { width: min(1180px, calc(100% - 28px)); margin: 0 auto; padding: 28px 0 60px; }
+    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; align-items: stretch; }
+    .card { background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.055)); border: 1px solid rgba(255,255,255,.14); border-radius: var(--radius-xl); box-shadow: var(--shadow); backdrop-filter: blur(18px); }
+    .intro { padding: 30px; position: relative; overflow: hidden; }
+    .intro::after { content: ""; position: absolute; width: 220px; height: 220px; right: -70px; bottom: -90px; border-radius: 50%; border: 36px solid rgba(255,255,255,.05); }
+    .eyebrow { color: var(--warn); font-size: 12px; letter-spacing: .12em; font-weight: 800; text-transform: uppercase; }
+    h1 { margin: 12px 0 12px; font-size: clamp(34px, 6vw, 70px); line-height: .92; letter-spacing: -.06em; }
+    .lead { color: var(--muted); font-size: 16px; line-height: 1.85; max-width: 620px; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+    .btn { border: 0; border-radius: 999px; padding: 13px 18px; color: #111722; background: var(--text); font-weight: 800; box-shadow: 0 10px 24px rgba(0,0,0,.25); }
+    .btn.secondary { background: rgba(255,255,255,.10); color: var(--text); border: 1px solid rgba(255,255,255,.16); }
+    .legend { padding: 24px; display: grid; gap: 14px; }
+    .legend-row { display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 12px; color: var(--muted); }
+    .dot { width: 13px; height: 13px; border-radius: 50%; }
+    .dot.lend { background: var(--lend); } .dot.borrow { background: var(--borrow); } .dot.warn { background: var(--warn); } .dot.danger { background: var(--danger); }
+    .section-title { margin: 34px 0 14px; display: flex; align-items: end; justify-content: space-between; gap: 16px; }
+    .section-title h2 { margin: 0; font-size: 24px; letter-spacing: -.03em; }
+    .section-title p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .phone-shell { padding: 18px; border-radius: 36px; background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), var(--shadow); }
+    .phone { position: relative; min-height: 740px; overflow: hidden; border-radius: 28px; background: linear-gradient(180deg, #182132 0%, #0e1420 100%); border: 1px solid rgba(255,255,255,.12); }
+    .status { height: 42px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: rgba(255,255,255,.75); font-size: 12px; }
+    .appbar { padding: 8px 20px 16px; display: flex; align-items: center; justify-content: space-between; }
+    .appbar h3 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .pill { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); padding: 8px 12px; border-radius: 999px; color: var(--muted); font-size: 12px; }
+    .map { position: relative; height: 360px; margin: 0 16px; border-radius: 26px; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), transparent 42%), rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.10); overflow: hidden; }
+    .map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .edge { fill: none; stroke-width: 4; stroke-linecap: round; opacity: .88; stroke-dasharray: 6 10; }
+    .edge.lend { stroke: var(--lend); } .edge.borrow { stroke: var(--borrow); }
+    .node { position: absolute; display: grid; place-items: center; text-align: center; font-weight: 900; box-shadow: 0 16px 34px rgba(0,0,0,.30); }
+    .me { width: 84px; height: 84px; left: calc(50% - 42px); top: 130px; border-radius: 50%; background: linear-gradient(145deg, #fff6df, #ffd166); color: #141923; }
+    .person { width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,.20), rgba(255,255,255,.08)); border: 1px solid rgba(255,255,255,.20); color: var(--text); font-size: 12px; }
+    .p1 { left: 22px; top: 44px; } .p2 { right: 20px; top: 56px; } .p3 { left: 34px; bottom: 44px; } .p4 { right: 32px; bottom: 42px; }
+    .tag { position: absolute; min-width: 112px; padding: 9px 11px; border-radius: 12px; background: rgba(255,255,255,.88); color: #111722; box-shadow: 0 14px 28px rgba(0,0,0,.30); border-left: 5px solid var(--lend); }
+    .tag b { display: block; font-size: 13px; letter-spacing: -.03em; } .tag span { display: block; font-size: 10px; color: #5e6675; margin-top: 2px; }
+    .tag.borrow { border-left-color: var(--borrow); } .tag.warn { outline: 2px solid var(--warn); } .tag.danger { outline: 2px solid var(--danger); }
+    .t1 { left: 74px; top: 104px; } .t2 { right: 66px; top: 124px; } .t3 { left: 92px; bottom: 96px; } .t4 { right: 82px; bottom: 96px; }
+    .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px; }
+    .metric { padding: 14px; border-radius: 18px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10); }
+    .metric strong { display: block; font-size: 24px; } .metric small { color: var(--muted); }
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px 16px; }
+    .tab { text-align: center; padding: 10px 6px; border-radius: 14px; color: var(--muted); background: rgba(255,255,255,.05); font-size: 11px; }
+    .tab.active { color: #121722; background: var(--text); font-weight: 900; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .spec { padding: 20px; }
+    .spec h3 { margin: 0 0 10px; font-size: 18px; letter-spacing: -.03em; }
+    .spec ul { margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.75; font-size: 14px; }
+    .flow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .mock { padding: 20px; }
+    .field { margin-top: 10px; padding: 13px 14px; border-radius: 14px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.10); color: var(--muted); display:flex; justify-content:space-between; gap:12px; }
+    .choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .choice div { padding: 14px; border-radius: 16px; font-weight: 900; text-align: center; } .choice .lend { background: rgba(255,122,69,.18); color: #ffc4aa; border: 1px solid rgba(255,122,69,.35); } .choice .borrow { background: rgba(69,199,255,.18); color: #b4ecff; border: 1px solid rgba(69,199,255,.35); }
+    .list { display: grid; gap: 10px; }
+    .item { display: grid; grid-template-columns: 8px 1fr auto; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10); }
+    .bar { width: 8px; align-self: stretch; border-radius: 99px; background: var(--lend); } .bar.borrow { background: var(--borrow); } .bar.danger { background: var(--danger); }
+    .item b { display: block; } .item small { color: var(--muted); }
+    .badge { padding: 7px 9px; border-radius: 999px; background: rgba(255,255,255,.10); color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .next { padding: 22px; border: 1px dashed rgba(255,255,255,.26); }
+    @media (max-width: 860px) { .hero, .flow { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr; } .page { width: min(100% - 18px, 640px); padding-top: 12px; } .phone { min-height: 700px; } .map { height: 330px; } .tag { min-width: 96px; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="card intro">
+        <div class="eyebrow">New project / information architecture first</div>
+        <h1>貸し借りを<br>地図みたいに見る</h1>
+        <p class="lead">自分を中心に、誰へ何を貸したか・誰から何を借りたかをマインドマップで可視化するアプリ案。金銭、ゲームソフト、本、ガジェット、日用品まで同じ構造で管理します。</p>
+        <div class="actions">
+          <button class="btn">+ 貸し借りを追加</button>
+          <button class="btn secondary">期限近いものを見る</button>
+        </div>
+      </div>
+      <div class="card legend">
+        <div class="legend-row"><span class="dot lend"></span><strong>貸した</strong><span>オレンジ線</span></div>
+        <div class="legend-row"><span class="dot borrow"></span><strong>借りた</strong><span>ブルー線</span></div>
+        <div class="legend-row"><span class="dot warn"></span><strong>期限近い</strong><span>黄アウトライン</span></div>
+        <div class="legend-row"><span class="dot danger"></span><strong>期限超過</strong><span>赤アウトライン</span></div>
+        <p class="lead" style="font-size:14px;margin:4px 0 0;">ホームは「人」ではなく「関係」を主役にします。相手ノードとアイテムタグを分けることで、複数品目がある相手も混雑しにくくします。</p>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <div><h2>01. ホーム: マインドマップ型ダッシュボード</h2><p>中央=自分 / 丸=相手 / 四角タグ=貸借項目 / 線色=貸した・借りた</p></div>
+    </div>
+
+    <section class="phone-shell">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>貸し借りマップ</span><span>●●●</span></div>
+        <div class="appbar"><h3>ホーム</h3><span class="pill">未完了 8件</span></div>
+        <div class="map" aria-label="貸し借り関係マップ案">
+          <svg viewBox="0 0 360 360" preserveAspectRatio="none" aria-hidden="true">
+            <path class="edge lend" d="M180 172 C128 130, 96 84, 54 74" />
+            <path class="edge borrow" d="M180 172 C225 118, 278 82, 326 84" />
+            <path class="edge lend" d="M180 210 C128 236, 88 280, 64 312" />
+            <path class="edge borrow" d="M180 210 C222 248, 270 290, 316 310" />
+          </svg>
+          <div class="node me">自分</div>
+          <div class="node person p1">佐藤</div>
+          <div class="node person p2">山田</div>
+          <div class="node person p3">兄</div>
+          <div class="node person p4">友人A</div>
+          <div class="tag t1 lend warn"><b>ゼルダSwitch</b><span>貸した / 明日返却</span></div>
+          <div class="tag t2 borrow"><b>¥4,500</b><span>借りた / 6月30日</span></div>
+          <div class="tag t3 lend danger"><b>技術書</b><span>貸した / 3日超過</span></div>
+          <div class="tag t4 borrow"><b>充電器</b><span>借りた / 今週中</span></div>
+        </div>
+        <div class="quick">
+          <div class="metric"><strong>5</strong><small>貸した</small></div>
+          <div class="metric"><strong>3</strong><small>借りた</small></div>
+          <div class="metric"><strong>2</strong><small>期限注意</small></div>
+        </div>
+        <div class="tabs">
+          <div class="tab active">マップ</div><div class="tab">一覧</div><div class="tab">通知</div><div class="tab">履歴</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-title">
+      <div><h2>02. 必要画面と優先機能</h2><p>まずMVPで迷子にならない最小構成</p></div>
+    </div>
+    <section class="grid">
+      <article class="card spec"><h3>追加/編集</h3><ul><li>貸した・借りたを最初に選ぶ</li><li>相手、品目、カテゴリ、期限</li><li>リマインダー日時</li><li>写真/証拠は後続候補</li></ul></article>
+      <article class="card spec"><h3>一覧/詳細</h3><ul><li>すべて、貸した、借りた、期限近い</li><li>相手別・期限順ソート</li><li>返却済みにする</li><li>履歴メモを残す</li></ul></article>
+      <article class="card spec"><h3>通知/リマインダー</h3><ul><li>期限前・当日・超過</li><li>催促文面の下書き</li><li>今日やること一覧</li><li>通知時刻の一括設定</li></ul></article>
+    </section>
+
+    <div class="section-title">
+      <div><h2>03. 入力導線と管理画面の構成</h2><p>長い説明より、最短で登録→忘れない状態へ</p></div>
+    </div>
+    <section class="flow">
+      <article class="card mock">
+        <h3>新規追加フォーム案</h3>
+        <div class="choice"><div class="lend">貸した</div><div class="borrow">借りた</div></div>
+        <div class="field"><span>相手</span><strong>佐藤</strong></div>
+        <div class="field"><span>品目</span><strong>ゼルダSwitch</strong></div>
+        <div class="field"><span>カテゴリ</span><strong>ゲーム</strong></div>
+        <div class="field"><span>返却予定</span><strong>明日 20:00</strong></div>
+        <div class="field"><span>通知</span><strong>当日18:00</strong></div>
+      </article>
+      <article class="card mock">
+        <h3>一覧カード案</h3>
+        <div class="list">
+          <div class="item"><span class="bar"></span><div><b>ゼルダSwitch → 佐藤</b><small>貸した / 明日返却 / ゲーム</small></div><span class="badge">期限近い</span></div>
+          <div class="item"><span class="bar borrow"></span><div><b>¥4,500 ← 山田</b><small>借りた / 6月30日 / お金</small></div><span class="badge">通常</span></div>
+          <div class="item"><span class="bar danger"></span><div><b>技術書 → 兄</b><small>貸した / 3日超過 / 本</small></div><span class="badge">催促候補</span></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="section-title">
+      <div><h2>04. 次に起こすタスク候補</h2><p>現行と同じサイクルで、小さく作って検証する</p></div>
+    </div>
+    <section class="card next">
+      <ol class="lead" style="margin:0; max-width:none;">
+        <li><strong>ホームマップUIの仕様確定:</strong> ノード配置、線色、期限状態、混雑時の省略ルールを決める。</li>
+        <li><strong>追加フォーム仕様:</strong> 入力項目・必須/任意・カテゴリ・リマインダー設定を固める。</li>
+        <li><strong>Expo初期生成:</strong> 画面構成がOKなら、新規Expo Routerアプリとして実装開始。</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
