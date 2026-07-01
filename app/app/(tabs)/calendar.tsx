@@ -1,5 +1,5 @@
 import { Href, router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { AppShell, theme } from '@/components/AppShell';
 import { borrowItems, directionColor, directionLabel } from '@/constants/borrowItems';
@@ -21,6 +21,9 @@ function itemForDate(date: number) {
 }
 
 export default function CalendarScreen() {
+  const { width } = useWindowDimensions();
+  const cellWidth = width / 7;
+
   return (
     <AppShell>
       <ScrollView contentContainerStyle={styles.container}>
@@ -30,13 +33,13 @@ export default function CalendarScreen() {
         </View>
         <View style={styles.grid}>
           {['月', '火', '水', '木', '金', '土', '日'].map((day) => (
-            <Text key={day} style={styles.dow}>{day}</Text>
+            <Text key={day} style={[styles.dow, { width: cellWidth }]}>{day}</Text>
           ))}
           {calendarDays.map((day, index) => {
             const item = itemForDate(day.date);
             const isToday = day.date === 27 && !day.muted;
             return (
-              <View key={`${day.date}-${index}`} style={[styles.day, day.muted && styles.mutedDay, isToday && styles.today]}>
+              <View key={`${day.date}-${index}`} style={[styles.day, { width: cellWidth }, day.muted && styles.mutedDay, isToday && styles.today]}>
                 <Text style={styles.date}>{day.date}</Text>
                 {item ? (
                   <Pressable
@@ -72,11 +75,12 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
     paddingBottom: 110,
   },
   header: {
-    marginBottom: 12,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
   title: {
     color: theme.text,
@@ -91,21 +95,21 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 5,
+    alignSelf: 'stretch',
   },
   dow: {
-    width: '13.45%',
     color: theme.muted,
     textAlign: 'center',
     fontSize: 10,
     fontWeight: '900',
-    paddingBottom: 4,
+    paddingBottom: 6,
+    paddingTop: 2,
   },
   day: {
-    width: '13.45%',
-    minHeight: 58,
-    borderRadius: 14,
-    borderWidth: 1,
+    minHeight: 64,
+    borderRadius: 0,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
     borderColor: 'rgba(255,255,255,0.10)',
     backgroundColor: 'rgba(255,255,255,0.055)',
     padding: 6,
@@ -136,7 +140,8 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 8,
-    marginTop: 12,
+    marginTop: 14,
+    paddingHorizontal: 16,
   },
   calendarItem: {
     minHeight: 66,

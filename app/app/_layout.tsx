@@ -51,7 +51,6 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="item/[id]" options={{ title: '詳細' }} />
         <Stack.Screen name="item/new" options={{ title: '追加' }} />
-        <Stack.Screen name="history" options={{ title: '返却済み' }} />
       </Stack>
     </ThemeProvider>
   );

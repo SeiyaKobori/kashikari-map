@@ -1,29 +1,40 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { useLocalSearchParams, router } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppShell, theme } from '@/components/AppShell';
 import { BorrowRow } from '@/components/BorrowRow';
-import { borrowItems } from '@/constants/borrowItems';
+import { borrowItems, completedItems } from '@/constants/borrowItems';
+
+type ListMode = 'active' | 'completed';
 
 export default function ListScreen() {
-  const [mode, setMode] = useState<'active' | 'completed'>('active');
+  const { filter } = useLocalSearchParams<{ filter?: string }>();
+  const mode: ListMode = filter === 'completed' ? 'completed' : 'active';
+  const visibleItems = mode === 'active' ? borrowItems.slice(0, 4) : completedItems;
+
+  function selectMode(nextMode: ListMode) {
+    router.setParams({ filter: nextMode === 'completed' ? 'completed' : undefined });
+  }
 
   return (
     <AppShell>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>一覧</Text>
         <View style={styles.segment}>
-          <Pressable onPress={() => setMode('active')} style={[styles.segmentButton, mode === 'active' && styles.segmentActive]}>
+          <Pressable onPress={() => selectMode('active')} style={[styles.segmentButton, mode === 'active' && styles.segmentActive]}>
             <Text style={[styles.segmentText, mode === 'active' && styles.segmentActiveText]}>未完了</Text>
           </Pressable>
-          <Pressable onPress={() => router.push('/history')} style={styles.segmentButton}>
-            <Text style={styles.segmentText}>返却済み</Text>
+          <Pressable onPress={() => selectMode('completed')} style={[styles.segmentButton, mode === 'completed' && styles.segmentActive]}>
+            <Text style={[styles.segmentText, mode === 'completed' && styles.segmentActiveText]}>返却済み</Text>
           </Pressable>
         </View>
 
+        <Text style={styles.sectionNote}>
+          {mode === 'active' ? '現在進行中の貸し借り' : '完了した貸し借り履歴'}
+        </Text>
+
         <View style={styles.rows}>
-          {borrowItems.slice(0, 4).map((item) => (
+          {visibleItems.map((item) => (
             <BorrowRow key={item.id} item={item} />
           ))}
         </View>
@@ -67,6 +78,12 @@ const styles = StyleSheet.create({
   },
   segmentActiveText: {
     color: '#111722',
+  },
+  sectionNote: {
+    color: theme.muted,
+    fontSize: 12,
+    fontWeight: '800',
+    marginBottom: 10,
   },
   rows: {
     gap: 9,

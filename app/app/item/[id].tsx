@@ -46,7 +46,7 @@ export default function DetailScreen() {
         <Pressable
           accessibilityRole="button"
           onPress={() => {
-            router.replace('/history');
+            router.replace({ pathname: '/(tabs)/list', params: { filter: 'completed' } });
           }}
           style={styles.primary}>
           <Text style={styles.primaryText}>返却済みにする</Text>
