@@ -28,11 +28,6 @@ export default function ListScreen() {
             <Text style={[styles.segmentText, mode === 'completed' && styles.segmentActiveText]}>返却済み</Text>
           </Pressable>
         </View>
-
-        <Text style={styles.sectionNote}>
-          {mode === 'active' ? '現在進行中の貸し借り' : '完了した貸し借り履歴'}
-        </Text>
-
         <View style={styles.rows}>
           {visibleItems.map((item) => (
             <BorrowRow key={item.id} item={item} />
@@ -78,12 +73,6 @@ const styles = StyleSheet.create({
   },
   segmentActiveText: {
     color: '#111722',
-  },
-  sectionNote: {
-    color: theme.muted,
-    fontSize: 12,
-    fontWeight: '800',
-    marginBottom: 10,
   },
   rows: {
     gap: 9,

@@ -29,7 +29,6 @@ export default function CalendarScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>2026年6月</Text>
-          <Text style={styles.caption}>返却・返済予定を月表示</Text>
         </View>
         <View style={styles.grid}>
           {['月', '火', '水', '木', '金', '土', '日'].map((day) => (
@@ -86,11 +85,6 @@ const styles = StyleSheet.create({
     color: theme.text,
     fontSize: 24,
     fontWeight: '900',
-  },
-  caption: {
-    color: theme.muted,
-    marginTop: 4,
-    fontWeight: '700',
   },
   grid: {
     flexDirection: 'row',
