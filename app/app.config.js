@@ -1,6 +1,6 @@
 const PROJECT_ID = 'd1f8338a-af50-4ef9-a163-c33d6ace8037';
 const PRODUCTION_BUNDLE_ID = 'com.sayyer.kashikarimap';
-const SHARED_ADHOC_BUNDLE_ID = 'com.sayyer.adhocpreview';
+const SHARED_ADHOC_BUNDLE_ID = 'com.brunostudio.adhocpreview';
 
 const buildProfile = process.env.EAS_BUILD_PROFILE || process.env.APP_VARIANT || 'development';
 const isProduction = buildProfile === 'production';
