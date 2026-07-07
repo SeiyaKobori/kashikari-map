@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AppShell, theme } from '@/components/AppShell';
-import { BORROW_COLOR, BorrowDirection, LEND_COLOR } from '@/constants/borrowItems';
+import { BORROW_COLOR, BorrowDirection, LEND_COLOR, normalizeOneCharacterIcon } from '@/constants/borrowItems';
 import { useBorrowLedger } from '@/contexts/BorrowLedgerContext';
 
 const categoryChoices = [
@@ -17,7 +17,7 @@ const categoryChoices = [
 const reminderChoices = [0, 1, 2, 3, 7];
 
 export default function NewItemScreen() {
-  const { addItem } = useBorrowLedger();
+  const { addItem, personOptions } = useBorrowLedger();
   const [direction, setDirection] = useState<BorrowDirection>('lend');
   const [person, setPerson] = useState('');
   const [personIcon, setPersonIcon] = useState('🙂');
@@ -29,6 +29,15 @@ export default function NewItemScreen() {
   const [error, setError] = useState('');
   const isLend = direction === 'lend';
   const accentColor = isLend ? LEND_COLOR : BORROW_COLOR;
+
+  function applyPersonIcon(value: string) {
+    setPersonIcon(normalizeOneCharacterIcon(value));
+  }
+
+  function selectPerson(option: { person: string; personIcon: string }) {
+    setPerson(option.person);
+    setPersonIcon(normalizeOneCharacterIcon(option.personIcon) || '🙂');
+  }
 
   function submit() {
     if (!person.trim() || !title.trim()) {
@@ -74,8 +83,22 @@ export default function NewItemScreen() {
             <Text style={styles.selectedHintText}>{isLend ? '自分から相手へ貸しているものを登録' : '相手から自分が借りているものを登録'}</Text>
           </View>
 
+          {personOptions.length > 0 ? (
+            <View style={styles.savedPeopleBox}>
+              <Text style={styles.label}>登録済みの人物から選ぶ</Text>
+              <View style={styles.choiceRow}>
+                {personOptions.map((option) => (
+                  <Pressable key={`${option.person}-${option.personIcon}`} onPress={() => selectPerson(option)} style={styles.personChoice}>
+                    <Text style={styles.personChoiceIcon}>{option.personIcon}</Text>
+                    <Text style={styles.personChoiceName}>{option.person}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
           <TextInput value={person} onChangeText={setPerson} placeholder="相手の名前" placeholderTextColor={theme.muted} style={styles.input} />
-          <TextInput value={personIcon} onChangeText={setPersonIcon} placeholder="相手アイコン 例: 🙂" placeholderTextColor={theme.muted} style={styles.input} maxLength={4} />
+          <TextInput value={personIcon} onChangeText={applyPersonIcon} placeholder="相手アイコン 例: 🙂" placeholderTextColor={theme.muted} style={styles.input} />
           <TextInput value={title} onChangeText={setTitle} placeholder="品目・金額 例: ¥4,500 / Switchソフト" placeholderTextColor={theme.muted} style={styles.input} />
 
           <Text style={styles.label}>カテゴリ</Text>
@@ -121,6 +144,10 @@ const styles = StyleSheet.create({
   segmentActiveText: { color: '#111722' },
   selectedHint: { borderWidth: 1, borderRadius: 16, padding: 12, marginBottom: 10 },
   selectedHintText: { color: theme.text, fontWeight: '900', textAlign: 'center' },
+  savedPeopleBox: { borderRadius: 18, borderWidth: 1, borderColor: theme.line, backgroundColor: theme.surface, padding: 12, marginBottom: 10 },
+  personChoice: { flexDirection: 'row', alignItems: 'center', gap: 7, borderRadius: 999, paddingHorizontal: 11, paddingVertical: 9, backgroundColor: 'rgba(255,255,255,0.10)' },
+  personChoiceIcon: { color: theme.text, fontSize: 16, fontWeight: '900' },
+  personChoiceName: { color: theme.text, fontSize: 12, fontWeight: '900' },
   input: { minHeight: 50, padding: 13, borderRadius: 16, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.line, marginBottom: 9, color: theme.text, fontSize: 15, fontWeight: '800' },
   memo: { minHeight: 88, textAlignVertical: 'top' },
   label: { color: theme.muted, fontSize: 12, marginTop: 4, marginBottom: 8, fontWeight: '900' },

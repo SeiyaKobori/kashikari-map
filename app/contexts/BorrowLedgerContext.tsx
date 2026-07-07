@@ -7,18 +7,26 @@ import {
   initialBorrowItems,
   initialCompletedItems,
   makeMapPosition,
+  normalizeOneCharacterIcon,
 } from '@/constants/borrowItems';
 
-const STORAGE_KEY = 'kashikari-map-ledger-v1';
+const STORAGE_KEY = 'kashikari-map-ledger-v2';
 
 type StoredLedger = {
   activeItems: BorrowItem[];
   completedItems: BorrowItem[];
 };
 
+export type PersonOption = {
+  person: string;
+  personIcon: string;
+};
+
 type BorrowLedgerContextValue = StoredLedger & {
   isReady: boolean;
+  personOptions: PersonOption[];
   addItem: (input: NewBorrowItemInput) => BorrowItem;
+  updateItem: (id: string, input: Partial<NewBorrowItemInput>) => void;
   completeItem: (id: string) => void;
   restoreSeedData: () => void;
   findItem: (id: string) => BorrowItem | undefined;
@@ -30,7 +38,7 @@ const BorrowLedgerContext = createContext<BorrowLedgerContextValue | undefined>(
 
 function normalizeLedger(value: Partial<StoredLedger> | null | undefined): StoredLedger {
   return {
-    activeItems: Array.isArray(value?.activeItems) && value.activeItems.length > 0 ? value.activeItems : initialBorrowItems,
+    activeItems: Array.isArray(value?.activeItems) ? value.activeItems : initialBorrowItems,
     completedItems: Array.isArray(value?.completedItems) ? value.completedItems : initialCompletedItems,
   };
 }
@@ -56,6 +64,16 @@ function todayKey() {
   const month = `${now.getMonth() + 1}`.padStart(2, '0');
   const day = `${now.getDate()}`.padStart(2, '0');
   return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function buildPersonOptions(items: BorrowItem[]) {
+  const map = new Map<string, PersonOption>();
+  items.forEach((item) => {
+    const name = item.person.trim();
+    if (!name || map.has(name)) return;
+    map.set(name, { person: name, personIcon: normalizeOneCharacterIcon(item.personIcon) || '🙂' });
+  });
+  return Array.from(map.values());
 }
 
 export function BorrowLedgerProvider({ children }: PropsWithChildren) {
@@ -97,9 +115,9 @@ export function BorrowLedgerProvider({ children }: PropsWithChildren) {
         id: makeItemId(input, activeItems, completedItems),
         title: input.title.trim(),
         person: input.person.trim(),
-        personIcon: input.personIcon.trim() || '🙂',
+        personIcon: normalizeOneCharacterIcon(input.personIcon) || '🙂',
         direction: input.direction,
-        categoryIcon: input.categoryIcon.trim() || '📦',
+        categoryIcon: normalizeOneCharacterIcon(input.categoryIcon) || '📦',
         dueDate: input.dueDate.trim(),
         reminderDays: input.reminderDays,
         memo: input.memo.trim() || 'メモなし',
@@ -107,6 +125,25 @@ export function BorrowLedgerProvider({ children }: PropsWithChildren) {
       };
       setActiveItems((current) => [...current, newItem]);
       return newItem;
+    }
+
+    function updateItem(id: string, input: Partial<NewBorrowItemInput>) {
+      const applyUpdate = (item: BorrowItem): BorrowItem => {
+        if (item.id !== id) return item;
+        return {
+          ...item,
+          title: input.title === undefined ? item.title : input.title.trim(),
+          person: input.person === undefined ? item.person : input.person.trim(),
+          personIcon: input.personIcon === undefined ? item.personIcon : normalizeOneCharacterIcon(input.personIcon) || '🙂',
+          direction: input.direction ?? item.direction,
+          categoryIcon: input.categoryIcon === undefined ? item.categoryIcon : normalizeOneCharacterIcon(input.categoryIcon) || '📦',
+          dueDate: input.dueDate === undefined ? item.dueDate : input.dueDate.trim(),
+          reminderDays: input.reminderDays ?? item.reminderDays,
+          memo: input.memo === undefined ? item.memo : input.memo.trim() || 'メモなし',
+        };
+      };
+      setActiveItems((current) => current.map(applyUpdate));
+      setCompletedItems((current) => current.map(applyUpdate));
     }
 
     function completeItem(id: string) {
@@ -129,7 +166,9 @@ export function BorrowLedgerProvider({ children }: PropsWithChildren) {
       activeItems,
       completedItems,
       isReady,
+      personOptions: buildPersonOptions([...activeItems, ...completedItems]),
       addItem,
+      updateItem,
       completeItem,
       restoreSeedData,
       findItem,

@@ -28,7 +28,7 @@ function ConnectionLine({ from, to, color }: { from: { x: number; y: number }; t
 }
 
 export default function MapScreen() {
-  const { activeItems, lendCount, borrowCount, restoreSeedData } = useBorrowLedger();
+  const { activeItems, lendCount, borrowCount } = useBorrowLedger();
 
   return (
     <AppShell>
@@ -55,7 +55,6 @@ export default function MapScreen() {
               {activeItems.map((item) => (
                 <View key={`person-${item.id}`} style={[styles.personNode, { left: item.map.personLeft, top: item.map.personTop }]}>
                   <Text style={styles.personIcon}>{item.personIcon}</Text>
-                  <Text style={styles.personName}>{item.person}</Text>
                 </View>
               ))}
 
@@ -76,6 +75,12 @@ export default function MapScreen() {
                   <Text style={styles.itemTitle}>{item.title}</Text>
                 </Pressable>
               ))}
+              {activeItems.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyTitle}>まだ貸し借りはありません</Text>
+                  <Text style={styles.emptyText}>右下の＋から最初の項目を追加してください</Text>
+                </View>
+              ) : null}
             </View>
           </ScrollView>
         </ScrollView>
@@ -100,11 +105,6 @@ export default function MapScreen() {
           <Text style={styles.legendText}>貸した</Text>
           <View style={[styles.legendLine, { backgroundColor: BORROW_COLOR }]} />
           <Text style={styles.legendText}>借りた</Text>
-          {activeItems.length === 0 ? (
-            <Pressable onPress={restoreSeedData} style={styles.seedButton}>
-              <Text style={styles.seedText}>初期データ復元</Text>
-            </Pressable>
-          ) : null}
         </View>
 
         <Pressable style={styles.fab} onPress={() => router.push('/item/new' as Href)}>
@@ -127,9 +127,11 @@ const styles = StyleSheet.create({
   meText: { color: '#141923', fontWeight: '900' },
   personNode: { position: 'absolute', width: 76, height: 76, borderRadius: 38, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.14)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)' },
   personIcon: { fontSize: 25 },
-  personName: { color: theme.text, fontSize: 11, fontWeight: '900', marginTop: 3 },
   itemTag: { position: 'absolute', minWidth: 138, paddingVertical: 12, paddingHorizontal: 13, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.92)', borderLeftWidth: 5, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 18 },
   itemTitle: { color: '#111722', fontSize: 14, fontWeight: '900' },
+  emptyState: { position: 'absolute', left: 278, top: 528, width: 264, borderRadius: 22, padding: 16, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: theme.line, alignItems: 'center' },
+  emptyTitle: { color: theme.text, fontSize: 16, fontWeight: '900', marginBottom: 6 },
+  emptyText: { color: theme.muted, fontSize: 12, fontWeight: '800', textAlign: 'center' },
   summary: { position: 'absolute', top: 8, left: 14, right: 14, flexDirection: 'row', gap: 8, padding: 8, borderRadius: 22, backgroundColor: 'rgba(9,14,22,0.72)', borderWidth: 1, borderColor: theme.line },
   metric: { flex: 1, padding: 10, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.10)' },
   metricNumber: { color: theme.text, fontSize: 20, fontWeight: '900' },
@@ -137,8 +139,7 @@ const styles = StyleSheet.create({
   legend: { position: 'absolute', left: 16, bottom: 18, flexDirection: 'row', alignItems: 'center', gap: 7, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 10, backgroundColor: 'rgba(9,14,22,0.76)', borderWidth: 1, borderColor: theme.line },
   legendLine: { width: 18, height: 4, borderRadius: 999 },
   legendText: { color: theme.text, fontSize: 11, fontWeight: '900' },
-  seedButton: { marginLeft: 4, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: '#ffd166' },
-  seedText: { color: '#141923', fontSize: 10, fontWeight: '900' },
+
   fab: { position: 'absolute', right: 18, bottom: 18, width: 58, height: 58, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffd166' },
   fabText: { color: '#151515', fontSize: 30, fontWeight: '900' },
 });
